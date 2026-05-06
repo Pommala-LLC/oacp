@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/integrity.schema.json",
+  "title": "OACP Integrity",
+  "description": "Per-message integrity, hash chain, and signature. Per \u00a73e.",
+  "type": "object",
+  "properties": {
+    "canonicalization": {
+      "type": "string",
+      "enum": [
+        "JCS-RFC8785",
+        "OACP-CANON-V1"
+      ],
+      "description": "Required at OACP-Regulated; implied by transport binding at lower profiles."
+    },
+    "hashAlgorithm": {
+      "type": "string",
+      "enum": [
+        "sha256",
+        "sha512",
+        "blake3"
+      ]
+    },
+    "payloadHash": {
+      "type": "string",
+      "pattern": "^(sha256|sha512|blake3):[A-Za-z0-9+/=_-]+$",
+      "description": "Hash of canonical-serialized payload only. Algorithm-prefixed."
+    },
+    "envelopeHash": {
+      "type": "string",
+      "pattern": "^(sha256|sha512|blake3):[A-Za-z0-9+/=_-]+$",
+      "description": "Hash of canonical-serialized envelope excluding the entire integrity block."
+    },
+    "previousMessageHash": {
+      "type": "string",
+      "pattern": "^(sha256|sha512|blake3):[A-Za-z0-9+/=_-]+$",
+      "description": "envelopeHash of the prior message in the run-scoped chain. Absent for INITIATOR."
+    },
+    "parentMessageHashes": {
+      "type": "object",
+      "description": "Optional per-parent hashes for FAN_IN. Keys MUST match causation.causationIds.",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^(sha256|sha512|blake3):[A-Za-z0-9+/=_-]+$"
+      }
+    },
+    "signatureRef": {
+      "$ref": "record-ref.schema.json"
+    }
+  }
+}

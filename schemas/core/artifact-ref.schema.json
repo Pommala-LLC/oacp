@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/artifact-ref.schema.json",
+  "title": "OACP ArtifactRef",
+  "description": "Reference to an externally-resolvable content artifact. Per \u00a72c.2-\u00a72c.7.",
+  "type": "object",
+  "required": [
+    "artifactId",
+    "artifactType",
+    "uri",
+    "createdAt",
+    "expiresAt",
+    "tenantId"
+  ],
+  "properties": {
+    "artifactId": {
+      "type": "string",
+      "description": "Stable identifier within tenant scope."
+    },
+    "artifactType": {
+      "type": "string",
+      "description": "Type discriminator. Reserved values plus namespace-prefixed custom types per \u00a72c.3.",
+      "anyOf": [
+        {
+          "enum": [
+            "DOCUMENT",
+            "TOOL_INPUT",
+            "TOOL_RESULT",
+            "SANITIZED_PAYLOAD",
+            "RECOMMENDATION",
+            "EVIDENCE_REPORT",
+            "VALIDATION_RESULT",
+            "AUDIT_EXPORT",
+            "TRACE_FRAGMENT",
+            "PROPOSAL",
+            "REVIEW_FEEDBACK",
+            "GENERATED_CONTENT"
+          ]
+        },
+        {
+          "pattern": "^x-(org|vendor|regulated|experimental)-"
+        }
+      ]
+    },
+    "uri": {
+      "type": "string",
+      "description": "Resolution URI; resolved only through trusted resolvers per \u00a72c.6a."
+    },
+    "mimeType": {
+      "type": "string",
+      "description": "Required at OACP-Governed+."
+    },
+    "hash": {
+      "type": "string",
+      "pattern": "^(sha256|sha512|blake3):[A-Za-z0-9+/=_-]+$",
+      "description": "Algorithm-prefixed. Required at OACP-Governed+."
+    },
+    "sizeBytes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Required at OACP-Governed+."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "dataClasses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "retentionClass": {
+      "type": "string"
+    }
+  }
+}

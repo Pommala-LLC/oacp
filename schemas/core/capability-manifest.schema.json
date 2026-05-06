@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/capability-manifest.schema.json",
+  "title": "OACP Capability Manifest",
+  "description": "Registered capability declaration for a participant. Immutable once registered; new versions produce new manifestId or version segment. Per \u00a73b.2-\u00a73b.3.",
+  "type": "object",
+  "required": [
+    "manifestId",
+    "manifestVersion",
+    "subject",
+    "registeredAt",
+    "registeredBy",
+    "lifecycleStatus",
+    "capabilities",
+    "tenantId"
+  ],
+  "properties": {
+    "manifestId": {
+      "type": "string"
+    },
+    "manifestVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "subject": {
+      "type": "string",
+      "description": "The principal this manifest applies to."
+    },
+    "registeredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "registeredBy": {
+      "type": "string"
+    },
+    "lifecycleStatus": {
+      "type": "string",
+      "enum": [
+        "ACTIVE",
+        "DEPRECATED",
+        "DEACTIVATED",
+        "BLOCKED",
+        "RETIRED",
+        "REVOKED"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "capabilityId",
+          "inputPayloadTypes",
+          "outputPayloadTypes",
+          "emitsMessageTypes"
+        ],
+        "properties": {
+          "capabilityId": {
+            "type": "string"
+          },
+          "inputPayloadTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "outputPayloadTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emitsMessageTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowedHandoffs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowedTools": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "riskClass": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          },
+          "sideEffectClass": {
+            "type": "string",
+            "enum": [
+              "READ_ONLY",
+              "IDEMPOTENT_WRITE",
+              "NON_IDEMPOTENT_WRITE",
+              "EXTERNAL_SIDE_EFFECT"
+            ]
+          }
+        }
+      }
+    },
+    "tenantId": {
+      "type": "string"
+    }
+  }
+}

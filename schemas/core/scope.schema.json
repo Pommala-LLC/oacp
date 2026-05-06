@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/scope.schema.json",
+  "title": "OACP Scope",
+  "description": "Message scope discriminator. Per \u00a72d.2a.",
+  "type": "object",
+  "required": [
+    "scopeType"
+  ],
+  "properties": {
+    "scopeType": {
+      "type": "string",
+      "enum": [
+        "TENANT",
+        "WORKSPACE",
+        "SYSTEM",
+        "CROSS_TENANT"
+      ]
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "domainId": {
+      "type": "string"
+    },
+    "taskType": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "development",
+        "qa",
+        "staging",
+        "production"
+      ]
+    },
+    "crossTenantPolicyRef": {
+      "$ref": "record-ref.schema.json"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "scopeType": {
+            "const": "TENANT"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "tenantId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scopeType": {
+            "const": "WORKSPACE"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "tenantId",
+          "workspaceId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scopeType": {
+            "const": "SYSTEM"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "required": [
+            "tenantId"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scopeType": {
+            "const": "CROSS_TENANT"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "tenantId",
+          "crossTenantPolicyRef"
+        ]
+      }
+    }
+  ]
+}

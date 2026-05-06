@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/audit-ref.schema.json",
+  "title": "OACP AuditRef",
+  "description": "Reference to an audit-chain entry. Per \u00a72c.1a.",
+  "type": "object",
+  "required": [
+    "auditId",
+    "tenantId"
+  ],
+  "properties": {
+    "auditId": {
+      "type": "string"
+    },
+    "auditChainRef": {
+      "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    }
+  }
+}

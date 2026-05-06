@@ -1,0 +1,114 @@
+{
+  "id": "OACP-V0.1-CV-0120",
+  "section": "§3e.5, §3e.6",
+  "description": "Hash chain broken at OACP-Regulated: a LINEAR message claims previousMessageHash that does not equal envelopeHash of its causationId predecessor. Receiver MUST hard-reject with HASH_CHAIN_BROKEN at gate 13.",
+  "profile": "OACP-Regulated",
+  "receiverScope": {
+    "authorizedTenants": ["tenant_001"]
+  },
+  "priorMessage": {
+    "description": "The actual prior message in the run; its envelopeHash is sha256:CORRECT_PRIOR_HASH",
+    "messageId": "msg_prior_001",
+    "envelopeHash": "sha256:CORRECT_PRIOR_HASH"
+  },
+  "envelope": {
+    "oacpVersion": "0.1",
+    "messageId": "msg_chain_break",
+    "messageKind": "EVENT",
+    "messageType": "PROPOSAL_EMITTED",
+    "createdAt": "2026-05-05T17:11:00Z",
+    "scope": {
+      "scopeType": "TENANT",
+      "tenantId": "tenant_001",
+      "environment": "production"
+    },
+    "from": {
+      "identity": {
+        "assurance": "ATTESTED",
+        "subject": "principal.agent.classifier",
+        "credentialRef": "cred_agent_001",
+        "credentialKind": "RUNTIME_KEY",
+        "issuedAt": "2026-05-05T16:00:00Z",
+        "expiresAt": "2026-05-05T22:00:00Z",
+        "issuedBy": "runtime-attestor-001"
+      },
+      "verification": {
+        "verified": true,
+        "verifiedBy": "runtime-attestor-001",
+        "verifiedAt": "2026-05-05T17:11:00Z",
+        "verificationMethod": "RUNTIME_INTERNAL",
+        "tenantScope": {
+          "authorizedTenants": ["tenant_001"],
+          "source": "credential-claims"
+        }
+      },
+      "participantId": "agent.classifier",
+      "participantType": "AGENT"
+    },
+    "governance": {
+      "profile": "OACP-Regulated",
+      "profileVersion": "0.1.0",
+      "bindingId": "bind_001",
+      "policySnapshotId": "policy-snapshot-001"
+    },
+    "run": {
+      "runId": "run_001",
+      "correlationId": "corr_001"
+    },
+    "causation": {
+      "causationType": "LINEAR",
+      "causationId": "msg_prior_001",
+      "causationIds": ["msg_prior_001"]
+    },
+    "integrity": {
+      "canonicalization": "JCS-RFC8785",
+      "hashAlgorithm": "sha256",
+      "envelopeHash": "sha256:THIS_MESSAGE_ENVELOPE_HASH",
+      "previousMessageHash": "sha256:WRONG_OR_TAMPERED_HASH",
+      "signatureRef": {
+        "recordId": "sig_chain_break",
+        "recordType": "MESSAGE_SIGNATURE",
+        "scopeType": "TENANT",
+        "tenantId": "tenant_001"
+      }
+    },
+    "authorizationDecision": {
+      "decisionRef": {
+        "decisionId": "authz_chain_break",
+        "decisionType": "AUTHORIZATION",
+        "decidedBy": "policy-engine-001",
+        "decidedAt": "2026-05-05T17:11:00Z",
+        "tenantId": "tenant_001"
+      },
+      "decidedBy": "policy-engine-001",
+      "decidedAt": "2026-05-05T17:11:00Z",
+      "scope": {
+        "messageType": "PROPOSAL_EMITTED",
+        "bindingId": "bind_001",
+        "runId": "run_001",
+        "tenantId": "tenant_001"
+      },
+      "result": "ALLOW",
+      "policySnapshotId": "policy-snapshot-001"
+    },
+    "payloadType": "proposal-emitted-v1",
+    "payload": {
+      "proposalId": "prop_chain_break",
+      "proposalRef": {
+        "artifactId": "prop_chain_break",
+        "artifactType": "PROPOSAL",
+        "uri": "ojas://tenant_001/proposals/prop_chain_break",
+        "mimeType": "application/json",
+        "hash": "sha256:placeholder_proposal_hash",
+        "sizeBytes": 4096,
+        "createdAt": "2026-05-05T17:11:00Z",
+        "expiresAt": "2026-05-05T19:11:00Z",
+        "tenantId": "tenant_001"
+      }
+    }
+  },
+  "expected": "reject",
+  "expectedErrorCode": "HASH_CHAIN_BROKEN",
+  "expectedGateStep": 13,
+  "notes": "previousMessageHash claims sha256:WRONG_OR_TAMPERED_HASH but the actual prior message's envelopeHash is sha256:CORRECT_PRIOR_HASH. At OACP-Regulated, this is a hard-blocking rejection. At OACP-Governed, the same condition is detective rather than blocking — surfaced as audit warning but does not halt processing. Test vectors at Governed would have expected: accept with audit-flag observation."
+}

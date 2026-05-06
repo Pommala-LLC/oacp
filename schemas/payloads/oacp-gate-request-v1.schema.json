@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-gate-request-v1.schema.json",
+  "title": "OACP Gate Request Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'gate-request-v1'. Requests a validation gate run. Gate execution produces a typed ValidationResult; the response is a gate-result-v1 message. Per spec \u00a711 (gate sketch) \u2014 detailed gate-execution semantics deferred to Tier 4.",
+  "type": "object",
+  "required": [
+    "gateId",
+    "subjectRef",
+    "tenantId"
+  ],
+  "properties": {
+    "gateId": {
+      "type": "string",
+      "description": "Stable identifier of the gate to run (e.g., 'gate.jrxml.compile', 'gate.classification.confidence-threshold'). Gates are registered in the domain pack.",
+      "minLength": 1
+    },
+    "subjectRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to the artifact being validated."
+    },
+    "subjectPayloadType": {
+      "type": "string",
+      "description": "Optional. Declared payload type of the subject for routing/dispatch."
+    },
+    "params": {
+      "type": "object",
+      "description": "Gate-specific parameters. Schema is gate-specific; gates declare their parameter schemas in domain registration.",
+      "additionalProperties": true
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "description": "Optional. Pre-existing evidence the gate may consume (avoiding redundant collection).",
+      "items": {
+        "$ref": "../core/artifact-ref.schema.json"
+      }
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "policySnapshotId": {
+      "type": "string",
+      "description": "Active policy snapshot under which the gate evaluates. Required at OACP-Governed+."
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

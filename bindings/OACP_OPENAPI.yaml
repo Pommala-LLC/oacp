@@ -1,0 +1,269 @@
+openapi: 3.1.0
+
+info:
+  title: OACP Reference OpenAPI Binding (v0.1)
+  version: 0.1.0
+  description: |
+    Starter-quality OpenAPI 3.1 binding for OACP. This document illustrates how
+    OACP envelopes ride on synchronous HTTP. The binding is reference-grade,
+    not a full production API surface — endpoints, status codes, and security
+    schemes are illustrative.
+
+    OpenAPI 3.1 uses JSON Schema 2020-12 for its schema dialect, aligning with
+    OACP's schema files in ../schemas.
+
+    For the narrative explanation of the OpenAPI binding pattern, see the
+    bindings README.md.
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: OACP working draft (v0.1)
+    url: https://oacp.dev
+
+servers:
+  - url: https://runtime.example.com/oacp/v0.1
+    description: Illustrative OACP runtime endpoint.
+
+security:
+  - bearerAuth: []
+  - mtlsAuth: []
+
+paths:
+
+  /tenants/{tenantId}/runs/{runId}/messages:
+    post:
+      summary: Submit an OACP envelope for processing
+      description: |
+        Receivers process the envelope through the twelve-step processing gate
+        per spec §1.2. On success, they return 202 Accepted with a Location
+        header pointing to the resource. On failure, they return a 4xx with an
+        ErrorResult body.
+      operationId: submitMessage
+      tags: [oacp]
+      parameters:
+        - $ref: '#/components/parameters/TenantIdPath'
+        - $ref: '#/components/parameters/RunIdPath'
+        - $ref: '#/components/parameters/OacpTenantHeader'
+        - $ref: '#/components/parameters/OacpRunHeader'
+        - $ref: '#/components/parameters/OacpMessageIdHeader'
+        - $ref: '#/components/parameters/OacpIdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OacpEnvelope'
+            examples:
+              proposal-emitted:
+                summary: A proposal-emitted envelope
+                value:
+                  $ref: '../examples/proposal-example.json'
+              tool-call-request:
+                summary: A tool-call request envelope
+                value:
+                  $ref: '../examples/tool-request-example.json'
+      responses:
+        '202':
+          description: Accepted; processing has begun.
+          headers:
+            Location:
+              description: URI of the created resource.
+              schema: { type: string }
+            oacp-message-id:
+              description: Receiver-assigned message id.
+              schema: { type: string }
+        '400':
+          description: Validation failure; see ErrorResult body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '401':
+          description: Identity verification failed (gate 1).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '403':
+          description: Authority violation, authorization deny, or tenant violation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+              examples:
+                tenant-violation:
+                  summary: Tenant-violation error
+                  value:
+                    $ref: '../examples/error-example.json'
+        '409':
+          description: Idempotency conflict, lifecycle conflict, or broker state conflict.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '412':
+          description: Hash chain broken, message age exceeded, or precondition failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+
+  /tenants/{tenantId}/proposals/{proposalId}:
+    get:
+      summary: Retrieve a proposal artifact
+      operationId: getProposal
+      tags: [oacp]
+      parameters:
+        - $ref: '#/components/parameters/TenantIdPath'
+        - name: proposalId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/OacpTenantHeader'
+      responses:
+        '200':
+          description: Proposal artifact body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalArtifact'
+        '404':
+          description: Proposal not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        '410':
+          description: Proposal expired.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+
+  /tenants/{tenantId}/decisions/{decisionId}:
+    get:
+      summary: Retrieve a decision artifact
+      operationId: getDecision
+      tags: [oacp]
+      parameters:
+        - $ref: '#/components/parameters/TenantIdPath'
+        - name: decisionId
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/OacpTenantHeader'
+      responses:
+        '200':
+          description: Decision artifact (DecisionRef shape).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionRef'
+        '404':
+          description: Decision not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+
+  /tenants/{tenantId}/runs/{runId}/audit:
+    get:
+      summary: Retrieve an audit chain
+      description: |
+        Returns audit-chain entries for the specified run. Pagination is
+        deployment-defined; this binding leaves it unspecified.
+      operationId: getAuditChain
+      tags: [oacp]
+      parameters:
+        - $ref: '#/components/parameters/TenantIdPath'
+        - $ref: '#/components/parameters/RunIdPath'
+        - $ref: '#/components/parameters/OacpTenantHeader'
+      responses:
+        '200':
+          description: Audit chain entries.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Deployment-defined pagination shape.
+
+components:
+
+  parameters:
+
+    TenantIdPath:
+      name: tenantId
+      in: path
+      required: true
+      schema: { type: string }
+      description: OACP scope.tenantId
+
+    RunIdPath:
+      name: runId
+      in: path
+      required: true
+      schema: { type: string }
+      description: OACP run.runId
+
+    OacpTenantHeader:
+      name: oacp-tenant-id
+      in: header
+      required: true
+      schema: { type: string }
+      description: Mirror of envelope scope.tenantId for transport-layer routing.
+
+    OacpRunHeader:
+      name: oacp-run-id
+      in: header
+      required: false
+      schema: { type: string }
+      description: Mirror of envelope run.runId for transport-layer routing.
+
+    OacpMessageIdHeader:
+      name: oacp-message-id
+      in: header
+      required: false
+      schema: { type: string }
+      description: Mirror of envelope messageId for transport-level dedup.
+
+    OacpIdempotencyKeyHeader:
+      name: oacp-idempotency-key
+      in: header
+      required: false
+      schema: { type: string }
+      description: Mirror of envelope idempotencyKey for receiver-level dedup.
+
+  securitySchemes:
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: |
+        Bearer token. Resolved to OACP identity.credentialRef at receive time.
+        Transport-level auth does not replace OACP identity verification.
+
+    mtlsAuth:
+      type: mutualTLS
+      description: |
+        mTLS authentication. Client certificate is referenced from OACP
+        identity.credentialRef. Recommended at OACP-Regulated.
+
+  schemas:
+
+    OacpEnvelope:
+      $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'
+
+    ErrorResult:
+      $ref: '../schemas/core/error-result.schema.json'
+
+    ProposalArtifact:
+      $ref: '../schemas/core/proposal.schema.json'
+
+    DecisionRef:
+      $ref: '../schemas/core/decision-ref.schema.json'
+
+tags:
+  - name: oacp
+    description: OACP message processing endpoints.

@@ -1,0 +1,280 @@
+asyncapi: 3.0.0
+
+info:
+  title: OACP Reference AsyncAPI Binding (v0.1)
+  version: 0.1.0
+  description: |
+    Starter-quality AsyncAPI 3.0 binding for OACP. This document illustrates how
+    OACP envelopes ride on asynchronous transports. The binding is reference-grade,
+    not a full production API surface — channel structures, message components, and
+    transport bindings are illustrative.
+
+    OACP envelopes are carried as the AsyncAPI message payload. AsyncAPI's "payload"
+    is the entire OACP envelope; OACP's "payload" is the typed payload field inside
+    the envelope.
+
+    For the narrative explanation of the AsyncAPI binding pattern, see the bindings
+    README.md.
+
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: OACP working draft (v0.1)
+    url: https://oacp.dev
+
+defaultContentType: application/json
+
+servers:
+  production-broker:
+    host: broker.example.com:9092
+    protocol: kafka
+    description: |
+      Illustrative production message broker. Real deployments configure this
+      per their infrastructure. OACP does not constrain transport choice.
+
+channels:
+
+  agent-proposals:
+    address: tenants/{tenantId}/runs/{runId}/proposals
+    description: |
+      Channel for PROPOSAL_EMITTED messages. Tenant-scoped and run-scoped.
+      Receivers filter by tenantId and runId for routing efficiency; the
+      authoritative tenant scope is in the envelope's scope.tenantId.
+    parameters:
+      tenantId:
+        description: OACP scope.tenantId
+      runId:
+        description: OACP run.runId
+    messages:
+      proposalEmitted:
+        $ref: '#/components/messages/ProposalEmitted'
+
+  tool-requests:
+    address: tenants/{tenantId}/runs/{runId}/tool-requests
+    description: Channel for TOOL_CALL_REQUESTED messages routed to the Tool Broker.
+    parameters:
+      tenantId:
+        description: OACP scope.tenantId
+      runId:
+        description: OACP run.runId
+    messages:
+      toolCallRequested:
+        $ref: '#/components/messages/ToolCallRequested'
+
+  tool-results:
+    address: tenants/{tenantId}/runs/{runId}/tool-results
+    description: Channel for TOOL_RESULT_EMITTED messages emitted by the Tool Broker.
+    parameters:
+      tenantId:
+        description: OACP scope.tenantId
+      runId:
+        description: OACP run.runId
+    messages:
+      toolResultEmitted:
+        $ref: '#/components/messages/ToolResultEmitted'
+
+  gate-results:
+    address: tenants/{tenantId}/runs/{runId}/gate-results
+    description: Channel for GATE_RESULT_EMITTED messages emitted by gate runners.
+    parameters:
+      tenantId:
+        description: OACP scope.tenantId
+      runId:
+        description: OACP run.runId
+    messages:
+      gateResultEmitted:
+        $ref: '#/components/messages/GateResultEmitted'
+
+  errors:
+    address: tenants/{tenantId}/errors
+    description: |
+      Channel for ERROR_RESULT messages. May be a dead-letter queue or a
+      structured error stream depending on deployment.
+    parameters:
+      tenantId:
+        description: OACP scope.tenantId
+    messages:
+      errorResult:
+        $ref: '#/components/messages/ErrorResult'
+
+  audit-events:
+    address: tenants/{tenantId}/audit
+    description: |
+      Channel for cross-cutting governance audit events. Receivers MUST be
+      authorized for the tenantId. At OACP-Regulated, this channel typically
+      backs immutable storage.
+    parameters:
+      tenantId:
+        description: OACP scope.tenantId
+    messages:
+      runStarted:
+        $ref: '#/components/messages/RunStarted'
+
+operations:
+
+  emitProposal:
+    action: send
+    channel:
+      $ref: '#/channels/agent-proposals'
+    summary: Agent emits a proposal recommending an action.
+    description: |
+      AGENT participants emit PROPOSAL_EMITTED messages. Per spec §13, proposals
+      are recommendations; approval requires a separate decision artifact.
+    messages:
+      - $ref: '#/channels/agent-proposals/messages/proposalEmitted'
+
+  receiveProposal:
+    action: receive
+    channel:
+      $ref: '#/channels/agent-proposals'
+    summary: Runtime receives a proposal for evaluation.
+    messages:
+      - $ref: '#/channels/agent-proposals/messages/proposalEmitted'
+
+  requestTool:
+    action: send
+    channel:
+      $ref: '#/channels/tool-requests'
+    summary: Agent requests a tool invocation through the Tool Broker.
+    messages:
+      - $ref: '#/channels/tool-requests/messages/toolCallRequested'
+
+  emitToolResult:
+    action: send
+    channel:
+      $ref: '#/channels/tool-results'
+    summary: Tool Broker emits a tool result.
+    messages:
+      - $ref: '#/channels/tool-results/messages/toolResultEmitted'
+
+  emitGateResult:
+    action: send
+    channel:
+      $ref: '#/channels/gate-results'
+    summary: Gate runner emits a validation result.
+    messages:
+      - $ref: '#/channels/gate-results/messages/gateResultEmitted'
+
+  emitError:
+    action: send
+    channel:
+      $ref: '#/channels/errors'
+    summary: Receiver emits a structured error result.
+    messages:
+      - $ref: '#/channels/errors/messages/errorResult'
+
+  emitRunStart:
+    action: send
+    channel:
+      $ref: '#/channels/audit-events'
+    summary: Runtime emits a RUN_STARTED audit event.
+    messages:
+      - $ref: '#/channels/audit-events/messages/runStarted'
+
+components:
+
+  messages:
+
+    ProposalEmitted:
+      contentType: application/json
+      title: PROPOSAL_EMITTED
+      summary: Agent's proposal-emit message.
+      description: |
+        OACP envelope with messageKind=PROPOSAL, messageType=PROPOSAL_EMITTED,
+        payloadType=proposal-v1.
+      headers:
+        $ref: '#/components/schemas/OacpHeaders'
+      payload:
+        $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'
+      examples:
+        - name: basic-proposal
+          summary: A proposal-emitted envelope
+          payload:
+            $ref: '../examples/proposal-example.json'
+
+    ToolCallRequested:
+      contentType: application/json
+      title: TOOL_CALL_REQUESTED
+      summary: Agent's tool-call-request message routed to the Tool Broker.
+      description: |
+        OACP envelope with messageKind=TOOL_REQUEST (or TOOL_CALL in v0.1 spec
+        body), messageType=TOOL_CALL_REQUESTED, payloadType=tool-request-v1.
+      headers:
+        $ref: '#/components/schemas/OacpHeaders'
+      payload:
+        $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'
+      examples:
+        - name: send-email-request
+          summary: A tool-call request envelope
+          payload:
+            $ref: '../examples/tool-request-example.json'
+
+    ToolResultEmitted:
+      contentType: application/json
+      title: TOOL_RESULT_EMITTED
+      summary: Tool Broker's tool-result message.
+      headers:
+        $ref: '#/components/schemas/OacpHeaders'
+      payload:
+        $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'
+
+    GateResultEmitted:
+      contentType: application/json
+      title: GATE_RESULT_EMITTED
+      summary: Gate runner's validation-result message.
+      headers:
+        $ref: '#/components/schemas/OacpHeaders'
+      payload:
+        $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'
+
+    ErrorResult:
+      contentType: application/json
+      title: ERROR_RESULT
+      summary: Structured error returned from gate-failure rejections.
+      headers:
+        $ref: '#/components/schemas/OacpHeaders'
+      payload:
+        $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'
+      examples:
+        - name: tenant-violation-error
+          summary: An error envelope rejecting a tenant violation
+          payload:
+            $ref: '../examples/error-example.json'
+
+    RunStarted:
+      contentType: application/json
+      title: RUN_STARTED
+      summary: Runtime's INITIATOR run-started event.
+      headers:
+        $ref: '#/components/schemas/OacpHeaders'
+      payload:
+        $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'
+
+  schemas:
+
+    OacpHeaders:
+      type: object
+      description: |
+        Optional transport-level headers carrying derived metadata for routing
+        and observability. Authoritative governance state is inside the OACP
+        envelope; headers are advisory.
+      properties:
+        oacp-tenant-id:
+          type: string
+          description: Mirrors envelope scope.tenantId
+        oacp-run-id:
+          type: string
+          description: Mirrors envelope run.runId
+        oacp-message-id:
+          type: string
+          description: Mirrors envelope messageId
+        oacp-profile:
+          type: string
+          description: Mirrors envelope governance.profile
+        oacp-idempotency-key:
+          type: string
+          description: Mirrors envelope idempotencyKey
+
+    OacpEnvelope:
+      $ref: '../schemas/payloads/oacp-envelope-v1.schema.json'

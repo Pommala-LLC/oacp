@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-error-v1.schema.json",
+  "title": "OACP Error Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'error-v1'. Carries a structured error result emitted when message processing fails at any of the twelve processing gates. Follows the error-result schema's shape; this v1 schema makes the payloadType binding explicit. Per spec \u00a71.2 (gate ordering) and the per-section error code registries.",
+  "type": "object",
+  "required": [
+    "errorCode",
+    "tenantId",
+    "occurredAt"
+  ],
+  "properties": {
+    "errorCode": {
+      "type": "string",
+      "description": "Reserved error code from the relevant section's registry. Examples: MESSAGE_TENANT_VIOLATION, BINDING_INVALID, PROPOSAL_INVALID, HASH_CHAIN_BROKEN, SELF_DECISION_VIOLATION, EXTENSION_WEAKENS_CORE, RESPONSE_CORRELATION_FAILED.",
+      "minLength": 1
+    },
+    "errorMessage": {
+      "type": "string",
+      "description": "Human-readable message. MUST NOT leak tenant data or sensitive payload content. Recipients MUST treat this as advisory."
+    },
+    "gateStep": {
+      "type": "number",
+      "description": "Which step of the \u00a71.2 processing gate produced the error. Step 1.5 is encoded as 1.5.",
+      "minimum": 1,
+      "maximum": 15
+    },
+    "violatingField": {
+      "type": "string",
+      "description": "Optional JSON pointer to the envelope field that triggered the error (e.g., '/scope/tenantId', '/causation/causationId')."
+    },
+    "messageRef": {
+      "$ref": "../core/message-ref.schema.json",
+      "description": "Reference to the message that triggered the error."
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "Tenant scope of the error. SYSTEM-scope errors carry the receiver's authorized tenant context."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "auditRef": {
+      "$ref": "../core/audit-ref.schema.json"
+    },
+    "details": {
+      "type": "object",
+      "description": "Additional structured details. Shape is error-code-specific. Implementations MUST NOT include sensitive content here.",
+      "additionalProperties": true
+    },
+    "retryable": {
+      "type": "boolean",
+      "description": "Hint to the sender about whether retry could succeed. False for hard rejections (tenant violation, self-decision); true for transient failures (downstream timeout). Advisory only; not authoritative."
+    }
+  }
+}

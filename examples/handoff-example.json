@@ -1,0 +1,123 @@
+{
+  "oacpVersion": "0.1",
+  "messageId": "msg_handoff_001",
+  "messageKind": "EVENT",
+  "messageType": "HANDOFF_REQUESTED",
+  "createdAt": "2026-05-05T17:15:00Z",
+  "scope": {
+    "scopeType": "TENANT",
+    "tenantId": "tenant_001",
+    "environment": "production"
+  },
+  "from": {
+    "identity": {
+      "assurance": "AUTHENTICATED",
+      "subject": "principal.runtime.ojas",
+      "credentialRef": "cred_runtime",
+      "credentialKind": "RUNTIME_TOKEN",
+      "issuedAt": "2026-05-05T16:00:00Z",
+      "expiresAt": "2026-05-05T22:00:00Z",
+      "issuedBy": "runtime-adapter-001"
+    },
+    "verification": {
+      "verified": true,
+      "verifiedBy": "runtime-adapter-001",
+      "verifiedAt": "2026-05-05T17:15:00Z",
+      "verificationMethod": "RUNTIME_INTERNAL",
+      "tenantScope": {
+        "authorizedTenants": ["tenant_001"],
+        "source": "credential-claims"
+      }
+    },
+    "participantId": "runtime.ojas",
+    "participantType": "RUNTIME"
+  },
+  "governance": {
+    "profile": "OACP-Governed",
+    "profileVersion": "0.1.0",
+    "policySnapshotId": "policy-snapshot-001"
+  },
+  "ttl": {
+    "expiresAt": "2026-05-05T17:30:00Z"
+  },
+  "run": {
+    "runId": "run_001",
+    "correlationId": "corr_001"
+  },
+  "conversation": {
+    "conversationId": "conv_001"
+  },
+  "causation": {
+    "causationType": "LINEAR",
+    "causationId": "msg_classification_complete",
+    "causationIds": ["msg_classification_complete"]
+  },
+  "payloadType": "handoff-v1",
+  "payload": {
+    "handoffId": "classifier-to-extractor",
+    "handoffInstanceId": "handoff_001",
+    "handoffStatus": "REQUESTED",
+    "from": {
+      "participantId": "agent.classifier",
+      "role": "CLASSIFIER"
+    },
+    "to": {
+      "participantId": "agent.extractor",
+      "role": "EXTRACTOR"
+    },
+    "route": {
+      "routeId": "route.classification.completed.v1",
+      "targetRole": "EXTRACTOR"
+    },
+    "bindingRef": {
+      "recordId": "bind_001",
+      "recordType": "BINDING_RECORD",
+      "registry": "binding-registry",
+      "scopeType": "TENANT",
+      "tenantId": "tenant_001"
+    },
+    "targetBindingRef": {
+      "recordId": "bind_002_extractor",
+      "recordType": "BINDING_RECORD",
+      "registry": "binding-registry",
+      "scopeType": "TENANT",
+      "tenantId": "tenant_001"
+    },
+    "payloadType": "classification-result-v1",
+    "payloadRef": {
+      "artifactId": "classification_001",
+      "artifactType": "GENERATED_CONTENT",
+      "uri": "ojas://tenant_001/artifacts/classification_001",
+      "mimeType": "application/json",
+      "hash": "sha256:9f8a4c2e3b1d5f7a8c6b4d2e9f1a3c5e7b9d2f4a6c8e1b3d5f7a9c2e4b6d8f1a",
+      "sizeBytes": 1024,
+      "createdAt": "2026-05-05T17:14:30Z",
+      "expiresAt": "2026-05-05T19:14:30Z",
+      "tenantId": "tenant_001",
+      "dataClasses": ["INTERNAL"]
+    },
+    "validationRefs": [
+      {
+        "artifactId": "vr_classification_001",
+        "artifactType": "VALIDATION_RESULT",
+        "uri": "ojas://tenant_001/validation/vr_classification_001",
+        "mimeType": "application/json",
+        "hash": "sha256:1e2d3c4b5a6789ef0123456789abcdef0123456789abcdef0123456789abcdef",
+        "sizeBytes": 512,
+        "createdAt": "2026-05-05T17:14:45Z",
+        "expiresAt": "2026-05-05T19:14:45Z",
+        "tenantId": "tenant_001"
+      }
+    ],
+    "auditRefs": [
+      {
+        "auditId": "audit_classification_complete",
+        "auditChainRef": "chain_run_001",
+        "tenantId": "tenant_001"
+      }
+    ],
+    "tenantId": "tenant_001",
+    "runId": "run_001",
+    "conversationId": "conv_001"
+  }
+}

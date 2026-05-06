@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/message-ref.schema.json",
+  "title": "OACP MessageRef",
+  "description": "Reference to an OACP message. Bare-string forms permitted for within-run references; full object required at OACP-Governed+ for cross-run references. Per \u00a72c.1a.",
+  "type": "object",
+  "required": [
+    "messageId"
+  ],
+  "properties": {
+    "messageId": {
+      "type": "string"
+    },
+    "messageType": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    }
+  }
+}

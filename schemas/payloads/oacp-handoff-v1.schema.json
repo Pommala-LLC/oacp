@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-handoff-v1.schema.json",
+  "title": "OACP Handoff Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'handoff-v1'. Models a governed transfer from one participant/role to another. A handoff is NOT a binding (see binding.schema.json) \u2014 bindings are authority assignments; handoffs are governed transitions between participants/roles. A handoff may reference a binding via bindingRef but is a distinct artifact. The handoff carries route context (which manifest-declared route is being followed) and the next participant's payloadType expectation.",
+  "type": "object",
+  "required": [
+    "handoffId",
+    "handoffInstanceId",
+    "handoffStatus",
+    "from",
+    "to",
+    "tenantId",
+    "runId"
+  ],
+  "properties": {
+    "handoffId": {
+      "type": "string",
+      "description": "Stable identifier for this handoff definition (e.g., 'classifier-to-extractor'). May repeat across runs.",
+      "minLength": 1
+    },
+    "handoffInstanceId": {
+      "type": "string",
+      "description": "Stable identifier for THIS specific handoff event within a run. Unique per (tenantId, runId).",
+      "minLength": 1
+    },
+    "handoffStatus": {
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "VALIDATING",
+        "ACCEPTED",
+        "DENIED",
+        "COMPLETED",
+        "FAILED",
+        "EXPIRED",
+        "CANCELLED"
+      ],
+      "description": "Reserved handoff status enumeration. State transitions follow REQUESTED \u2192 VALIDATING \u2192 (ACCEPTED | DENIED). ACCEPTED \u2192 COMPLETED | FAILED | EXPIRED | CANCELLED. DENIED, FAILED, EXPIRED, CANCELLED are terminal."
+    },
+    "from": {
+      "type": "object",
+      "required": [
+        "participantId",
+        "role"
+      ],
+      "properties": {
+        "participantId": {
+          "type": "string",
+          "description": "Source participant identity (e.g., 'agent.classifier')."
+        },
+        "role": {
+          "type": "string",
+          "description": "Source role (e.g., 'CLASSIFIER'). Roles are domain-specific labels declared in the source's capability manifest."
+        }
+      }
+    },
+    "to": {
+      "type": "object",
+      "required": [
+        "participantId",
+        "role"
+      ],
+      "properties": {
+        "participantId": {
+          "type": "string",
+          "description": "Target participant identity. Per spec \u00a73b allowedHandoffs, this MUST be in the source's manifest's allowedHandoffs[]."
+        },
+        "role": {
+          "type": "string",
+          "description": "Target role."
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "description": "Optional route context \u2014 which manifest-declared route this handoff follows.",
+      "properties": {
+        "routeId": {
+          "type": "string",
+          "description": "Stable route identifier (e.g., 'route.classification.completed.v1')."
+        },
+        "targetRole": {
+          "type": "string"
+        }
+      }
+    },
+    "bindingRef": {
+      "$ref": "../core/record-ref.schema.json",
+      "description": "Reference to the source's binding under which the handoff is authorized. recordType MUST be BINDING_RECORD."
+    },
+    "targetBindingRef": {
+      "$ref": "../core/record-ref.schema.json",
+      "description": "Optional reference to the target's binding (when pre-allocated). recordType MUST be BINDING_RECORD."
+    },
+    "payloadType": {
+      "type": "string",
+      "description": "The payload type of the artifact being handed off (e.g., 'classification-result-v1'). MUST match the target's manifest's inputPayloadTypes."
+    },
+    "payloadRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to the artifact being handed off (the actual content the target receives)."
+    },
+    "validationRefs": {
+      "type": "array",
+      "description": "ValidationResult references for gates that have passed prior to handoff (e.g., schema validation, capability validation).",
+      "items": {
+        "$ref": "../core/artifact-ref.schema.json"
+      }
+    },
+    "auditRefs": {
+      "type": "array",
+      "description": "Audit-chain references for handoff lineage.",
+      "items": {
+        "$ref": "../core/audit-ref.schema.json"
+      }
+    },
+    "denialReason": {
+      "type": "string",
+      "description": "Required when handoffStatus is DENIED, FAILED, EXPIRED, or CANCELLED. Reserved values: HANDOFF_NOT_DECLARED, TARGET_NOT_AVAILABLE, TARGET_BINDING_INVALID, PAYLOAD_TYPE_MISMATCH, VALIDATION_FAILED, TTL_EXCEEDED, RUN_CANCELLED. Custom values use namespace prefixes per \u00a72b.7.",
+      "minLength": 1
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "conversationId": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "handoffStatus": {
+            "enum": [
+              "DENIED",
+              "FAILED",
+              "EXPIRED",
+              "CANCELLED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "denialReason"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "handoffStatus": {
+            "enum": [
+              "ACCEPTED",
+              "COMPLETED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "payloadRef"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/reference.schema.json",
+  "title": "OACP Reference (parent)",
+  "description": "Parent abstraction over the five Reference subtypes. Per \u00a72c.1. Used as a discriminated union; messages typically use specific subtype schemas.",
+  "oneOf": [
+    {
+      "$ref": "artifact-ref.schema.json"
+    },
+    {
+      "$ref": "message-ref.schema.json"
+    },
+    {
+      "$ref": "record-ref.schema.json"
+    },
+    {
+      "$ref": "decision-ref.schema.json"
+    },
+    {
+      "$ref": "audit-ref.schema.json"
+    }
+  ]
+}

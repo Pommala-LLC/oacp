@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-proposal-v1.schema.json",
+  "title": "OACP Proposal Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'proposal-v1' (carried in PROPOSAL_EMITTED messages). The payload typically references a proposal artifact (proposalRef); the resolved artifact follows proposal.schema.json. This v1 payload schema is the message-level envelope payload, not the proposal artifact body itself. Per spec \u00a713.3.",
+  "type": "object",
+  "required": [
+    "proposalId",
+    "proposalRef",
+    "tenantId"
+  ],
+  "properties": {
+    "proposalId": {
+      "type": "string",
+      "description": "Stable identifier of the proposal. MUST equal proposalRef.artifactId."
+    },
+    "proposalRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to the proposal artifact. artifactType MUST be PROPOSAL. The resolved artifact body conforms to proposal.schema.json."
+    },
+    "summary": {
+      "type": "object",
+      "description": "Optional inline summary for receivers that need a quick view without resolving the artifact. Authoritative content is in the resolved proposal artifact.",
+      "properties": {
+        "proposalLifecycleState": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "PENDING",
+            "ESCALATED",
+            "AUTO_APPROVED",
+            "EXTERNALLY_APPROVED",
+            "REJECTED",
+            "EXPIRED",
+            "SUPERSEDED"
+          ]
+        },
+        "proposedBy": {
+          "type": "object",
+          "properties": {
+            "participantId": {
+              "type": "string"
+            },
+            "participantType": {
+              "type": "string",
+              "enum": [
+                "AGENT",
+                "SUPERVISOR",
+                "RUNTIME"
+              ]
+            },
+            "bindingId": {
+              "type": "string"
+            }
+          }
+        },
+        "calibration": {
+          "type": "object",
+          "properties": {
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "calibrationMethod": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "conversationId": {
+      "type": "string"
+    }
+  }
+}

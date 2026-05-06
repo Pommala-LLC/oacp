@@ -1,0 +1,98 @@
+{
+  "oacpVersion": "0.1",
+  "messageId": "msg_tool_request_001",
+  "messageKind": "TOOL_REQUEST",
+  "messageType": "TOOL_CALL_REQUESTED",
+  "createdAt": "2026-05-05T17:20:00Z",
+  "scope": {
+    "scopeType": "TENANT",
+    "tenantId": "tenant_001",
+    "environment": "production"
+  },
+  "from": {
+    "identity": {
+      "assurance": "AUTHENTICATED",
+      "subject": "principal.agent.notifier",
+      "credentialRef": "cred_notifier",
+      "credentialKind": "RUNTIME_TOKEN",
+      "issuedAt": "2026-05-05T16:00:00Z",
+      "expiresAt": "2026-05-05T22:00:00Z",
+      "issuedBy": "runtime-adapter-001"
+    },
+    "verification": {
+      "verified": true,
+      "verifiedBy": "runtime-adapter-001",
+      "verifiedAt": "2026-05-05T17:20:00Z",
+      "verificationMethod": "RUNTIME_INTERNAL",
+      "tenantScope": {
+        "authorizedTenants": ["tenant_001"],
+        "source": "credential-claims"
+      }
+    },
+    "participantId": "agent.notifier",
+    "participantType": "AGENT"
+  },
+  "governance": {
+    "profile": "OACP-Governed",
+    "profileVersion": "0.1.0",
+    "bindingId": "bind_email_001",
+    "policySnapshotId": "policy-snapshot-001"
+  },
+  "run": {
+    "runId": "run_002",
+    "correlationId": "corr_002"
+  },
+  "conversation": {
+    "conversationId": "conv_002"
+  },
+  "causation": {
+    "causationType": "LINEAR",
+    "causationId": "msg_run2_init",
+    "causationIds": ["msg_run2_init"]
+  },
+  "idempotencyKey": "send_email_customer_C12345_v1",
+  "idempotencyScope": "RUN",
+  "authorizationDecision": {
+    "decisionRef": {
+      "decisionId": "authz_email_001",
+      "decisionType": "AUTHORIZATION",
+      "decidedBy": "policy-engine-001",
+      "decidedAt": "2026-05-05T17:20:00Z",
+      "tenantId": "tenant_001"
+    },
+    "decidedBy": "policy-engine-001",
+    "decidedAt": "2026-05-05T17:20:00Z",
+    "scope": {
+      "messageType": "TOOL_CALL_REQUESTED",
+      "bindingId": "bind_email_001",
+      "runId": "run_002",
+      "tenantId": "tenant_001"
+    },
+    "result": "ALLOW",
+    "policySnapshotId": "policy-snapshot-001"
+  },
+  "payloadType": "tool-request-v1",
+  "payload": {
+    "toolCallId": "tc_001",
+    "toolId": "send_email",
+    "inputRef": {
+      "artifactId": "tc_input_001",
+      "artifactType": "TOOL_INPUT",
+      "uri": "ojas://tenant_001/tool-inputs/tc_input_001",
+      "mimeType": "application/json",
+      "hash": "sha256:a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f90",
+      "sizeBytes": 512,
+      "createdAt": "2026-05-05T17:20:00Z",
+      "expiresAt": "2026-05-05T18:20:00Z",
+      "tenantId": "tenant_001"
+    },
+    "bindingId": "bind_email_001",
+    "requestedBy": {
+      "participantId": "agent.notifier",
+      "participantType": "AGENT"
+    },
+    "tenantId": "tenant_001",
+    "expectedResultPayloadType": "tool-result-v1",
+    "timeoutMs": 30000
+  }
+}

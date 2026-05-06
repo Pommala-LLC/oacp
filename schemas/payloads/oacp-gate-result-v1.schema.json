@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-gate-result-v1.schema.json",
+  "title": "OACP Gate Result Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'gate-result-v1' (carried in GATE_RESULT messages). The envelope's responseTo block correlates this result to the original GATE_REQUEST. Per spec \u00a711 \u2014 minimal v0.1 sketch.",
+  "type": "object",
+  "required": [
+    "gateId",
+    "result",
+    "tenantId"
+  ],
+  "properties": {
+    "gateId": {
+      "type": "string",
+      "description": "Echo of the gate that ran."
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "PASSED",
+        "FAILED",
+        "INCONCLUSIVE",
+        "SKIPPED"
+      ],
+      "description": "Per spec \u00a711 reserved values."
+    },
+    "validationResultRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to the typed ValidationResult artifact. artifactType MUST be VALIDATION_RESULT."
+    },
+    "subjectRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to the artifact that was validated."
+    },
+    "evidenceCollectedRefs": {
+      "type": "array",
+      "description": "Evidence artifacts collected during gate execution.",
+      "items": {
+        "$ref": "../core/artifact-ref.schema.json"
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Quantitative metrics produced by the gate. Shape is gate-specific.",
+      "additionalProperties": true
+    },
+    "diagnostics": {
+      "type": "array",
+      "description": "Optional structured diagnostic findings (e.g., for FAILED or INCONCLUSIVE results).",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ]
+          }
+        }
+      }
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "policySnapshotId": {
+      "type": "string"
+    },
+    "executionTimeMs": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

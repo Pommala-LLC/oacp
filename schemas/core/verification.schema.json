@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/verification.schema.json",
+  "title": "OACP Verification",
+  "description": "Receiver-authored verification record. Appended to verificationTrail at each hop; not modified retroactively. Per \u00a73a.3.",
+  "type": "object",
+  "required": [
+    "verified",
+    "verifiedBy",
+    "verifiedAt"
+  ],
+  "properties": {
+    "verified": {
+      "type": "boolean"
+    },
+    "verifiedBy": {
+      "type": "string",
+      "description": "Verifier identifier."
+    },
+    "verifiedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verificationMethod": {
+      "type": "string",
+      "enum": [
+        "TOKEN_INTROSPECTION",
+        "MTLS_VERIFY",
+        "JWT_VERIFY",
+        "RUNTIME_INTERNAL",
+        "OAUTH_VERIFY",
+        "STATIC_TRUST"
+      ]
+    },
+    "verificationRef": {
+      "type": "string"
+    },
+    "tenantScope": {
+      "type": "object",
+      "description": "Tenant authorization for the verified identity. Required at OACP-Governed+ per \u00a72d.7.",
+      "required": [
+        "authorizedTenants"
+      ],
+      "properties": {
+        "authorizedTenants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "authorizedWorkspaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "credential-claims",
+            "policy-lookup",
+            "static-config"
+          ]
+        }
+      }
+    }
+  }
+}

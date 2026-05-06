@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-tool-result-v1.schema.json",
+  "title": "OACP Tool Result Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'tool-result-v1' (carried in TOOL_RESULT messages). The envelope's responseTo block correlates this result to the original TOOL_CALL_REQUESTED. Per spec \u00a710.11.",
+  "type": "object",
+  "required": [
+    "toolCallId",
+    "tenantId"
+  ],
+  "properties": {
+    "toolCallId": {
+      "type": "string",
+      "description": "MUST equal the toolCallId from the original TOOL_CALL_REQUESTED."
+    },
+    "brokerDecisionId": {
+      "type": "string",
+      "description": "The broker's decision ID that authorized this dispatch. Required at OACP-Governed+ for capability-scoped tool calls."
+    },
+    "resultRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to the tool result artifact. artifactType MUST be TOOL_RESULT."
+    },
+    "resultInline": {
+      "description": "Inline result. Use only when result is small. Prefer resultRef for governed audit.",
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "array"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "FAILED",
+        "PARTIAL",
+        "TIMEOUT",
+        "CANCELLED"
+      ],
+      "description": "Tool execution outcome. Distinct from envelope responseTo.responseStatus, which describes message-level correlation; outcome describes tool-level execution."
+    },
+    "errorRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to error details when outcome is FAILED. Optional."
+    },
+    "executionTimeMs": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "resultRef"
+      ]
+    },
+    {
+      "required": [
+        "resultInline"
+      ]
+    },
+    {
+      "required": [
+        "errorRef"
+      ]
+    },
+    {
+      "properties": {
+        "outcome": {
+          "enum": [
+            "FAILED",
+            "TIMEOUT",
+            "CANCELLED"
+          ]
+        }
+      },
+      "required": [
+        "outcome"
+      ]
+    }
+  ]
+}

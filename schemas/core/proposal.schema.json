@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/proposal.schema.json",
+  "title": "OACP Proposal",
+  "description": "Resolved content of a PROPOSAL artifact. The artifact reference itself is an ArtifactRef with artifactType=PROPOSAL. Per \u00a713.2.",
+  "type": "object",
+  "required": [
+    "proposalId",
+    "proposalVersion",
+    "proposalLifecycleState",
+    "proposedBy",
+    "proposedAt",
+    "recommendationRef",
+    "tenantId",
+    "runId"
+  ],
+  "properties": {
+    "proposalId": {
+      "type": "string"
+    },
+    "proposalVersion": {
+      "type": "string",
+      "description": "Increments only via SUPERSEDES per \u00a713.8."
+    },
+    "proposalLifecycleState": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "PENDING",
+        "ESCALATED",
+        "AUTO_APPROVED",
+        "EXTERNALLY_APPROVED",
+        "REJECTED",
+        "EXPIRED",
+        "SUPERSEDED"
+      ]
+    },
+    "proposedBy": {
+      "type": "object",
+      "required": [
+        "participantId",
+        "participantType",
+        "bindingId"
+      ],
+      "properties": {
+        "participantId": {
+          "type": "string"
+        },
+        "participantType": {
+          "type": "string",
+          "enum": [
+            "AGENT",
+            "SUPERVISOR",
+            "RUNTIME"
+          ]
+        },
+        "bindingId": {
+          "type": "string"
+        }
+      }
+    },
+    "proposedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recommendationRef": {
+      "$ref": "artifact-ref.schema.json"
+    },
+    "evidenceReportRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "artifact-ref.schema.json"
+      }
+    },
+    "validationResultRefs": {
+      "type": "array",
+      "items": {
+        "$ref": "artifact-ref.schema.json"
+      }
+    },
+    "riskAssessmentRef": {
+      "$ref": "decision-ref.schema.json"
+    },
+    "calibration": {
+      "type": "object",
+      "description": "Confidence + calibration. Required when recommendation is probabilistic-model output. Per \u00a713.5 precondition 2.",
+      "properties": {
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "calibrationMethod": {
+          "type": "string"
+        },
+        "modelVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "proposalRefs": {
+      "type": "array",
+      "description": "Relationships to other proposals per \u00a713.8.",
+      "items": {
+        "type": "object",
+        "required": [
+          "proposalRef",
+          "relationship"
+        ],
+        "properties": {
+          "proposalRef": {
+            "$ref": "artifact-ref.schema.json"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "RESPONDS_TO_REVIEW",
+              "SUPERSEDES",
+              "REFERENCES",
+              "CORRECTS"
+            ]
+          }
+        }
+      }
+    },
+    "policySnapshotId": {
+      "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "conversationId": {
+      "type": "string"
+    }
+  }
+}

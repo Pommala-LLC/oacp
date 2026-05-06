@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-escalation-request-v1.schema.json",
+  "title": "OACP Escalation Request Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'escalation-request-v1' (carried in ESCALATION_REQUESTED messages). Per spec \u00a73a.13, escalation requests expanded authority to perform an action (distinct from review, which seeks decision-support input). Escalations have TTL discipline; missing TTL triggers ESCALATION_TTL_REQUIRED.",
+  "type": "object",
+  "required": [
+    "escalationId",
+    "escalationType",
+    "appliesTo",
+    "requestedBy",
+    "tenantId"
+  ],
+  "properties": {
+    "escalationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "escalationType": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "SCOPE_EXPANSION",
+            "AUTHORITY_EXPANSION",
+            "POLICY_OVERRIDE_REQUEST",
+            "BINDING_REISSUE_REQUEST",
+            "MANUAL_REVIEW_HINT",
+            "CRISIS_HANDOFF"
+          ]
+        },
+        {
+          "pattern": "^x-(org|vendor|regulated|experimental)-"
+        }
+      ],
+      "description": "Reserved escalation types plus namespace-prefixed custom types."
+    },
+    "appliesTo": {
+      "type": "object",
+      "required": [
+        "objectType"
+      ],
+      "properties": {
+        "objectType": {
+          "type": "string",
+          "enum": [
+            "MESSAGE",
+            "PROPOSAL",
+            "BINDING",
+            "TOOL_CALL",
+            "RUN"
+          ]
+        },
+        "messageRef": {
+          "$ref": "../core/message-ref.schema.json"
+        },
+        "proposalRef": {
+          "$ref": "../core/artifact-ref.schema.json"
+        },
+        "bindingRef": {
+          "$ref": "../core/record-ref.schema.json"
+        },
+        "toolCallId": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        }
+      }
+    },
+    "requestedBy": {
+      "type": "object",
+      "required": [
+        "participantId",
+        "participantType"
+      ],
+      "properties": {
+        "participantId": {
+          "type": "string"
+        },
+        "participantType": {
+          "type": "string",
+          "enum": [
+            "AGENT",
+            "SUPERVISOR",
+            "RUNTIME"
+          ]
+        }
+      }
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Required free-text rationale. SHOULD be concise (under 1000 characters)."
+    },
+    "requestedScope": {
+      "type": "object",
+      "description": "Optional. The expanded scope being requested (e.g., additional readable_patterns for SCOPE_EXPANSION). Shape is escalationType-specific.",
+      "additionalProperties": true
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "description": "Optional supporting evidence for the escalation.",
+      "items": {
+        "$ref": "../core/artifact-ref.schema.json"
+      }
+    },
+    "currentDecisionRef": {
+      "$ref": "../core/decision-ref.schema.json",
+      "description": "Optional. The current authorization decision being escalated past (e.g., a DENY that the requester wants reconsidered)."
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "runId": {
+      "type": "string"
+    },
+    "conversationId": {
+      "type": "string"
+    },
+    "expectedReviewerType": {
+      "type": "string",
+      "enum": [
+        "RUNTIME",
+        "SUPERVISOR",
+        "EXTERNAL_REVIEWER",
+        "EXTERNAL_SYSTEM"
+      ],
+      "description": "Optional hint about who should handle this escalation. Authoritative routing is policy-driven."
+    },
+    "businessDeadline": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Informational deadline. NOT protocol TTL \u2014 use envelope ttl.expiresAt."
+    }
+  }
+}

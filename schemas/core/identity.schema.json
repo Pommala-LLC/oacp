@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/identity.schema.json",
+  "title": "OACP Identity",
+  "description": "Sender-authored identity claim. Immutable; part of envelope hash. Per \u00a73a.2.",
+  "type": "object",
+  "required": [
+    "assurance",
+    "subject"
+  ],
+  "properties": {
+    "assurance": {
+      "type": "string",
+      "enum": [
+        "DECLARED",
+        "AUTHENTICATED",
+        "ATTESTED"
+      ],
+      "description": "Three assurance levels per \u00a73a.4."
+    },
+    "subject": {
+      "type": "string",
+      "description": "The participant's claimed identity."
+    },
+    "credentialRef": {
+      "type": "string",
+      "description": "Reference to the credential used. Required at AUTHENTICATED+."
+    },
+    "credentialKind": {
+      "type": "string",
+      "enum": [
+        "RUNTIME_TOKEN",
+        "BEARER_TOKEN",
+        "MTLS_CERTIFICATE",
+        "OAUTH_TOKEN",
+        "SIGNED_JWT",
+        "RUNTIME_KEY",
+        "WORKLOAD_IDENTITY",
+        "SERVICE_ACCOUNT_TOKEN"
+      ]
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "issuedBy": {
+      "type": "string",
+      "description": "Credential issuer identifier."
+    },
+    "actingOnBehalfOf": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Reserved for delegation. Out of v0.1 scope; implementations MUST NOT rely on it for authorization."
+    }
+  },
+  "if": {
+    "properties": {
+      "assurance": {
+        "enum": [
+          "AUTHENTICATED",
+          "ATTESTED"
+        ]
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "credentialRef",
+      "credentialKind",
+      "issuedAt",
+      "expiresAt",
+      "issuedBy"
+    ]
+  }
+}

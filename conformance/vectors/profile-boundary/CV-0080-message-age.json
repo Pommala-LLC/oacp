@@ -1,0 +1,102 @@
+{
+  "id": "OACP-V0.1-CV-0080",
+  "section": "§3e.3",
+  "description": "Message age exceeded: envelope createdAt is 2 hours old at receive time, with OACP-Governed default maxMessageAgeSeconds = 3600 (1h). Receiver MUST reject with MESSAGE_AGE_EXCEEDED at gate 13.",
+  "profile": "OACP-Governed",
+  "receiverScope": {
+    "authorizedTenants": ["tenant_001"],
+    "currentTime": "2026-05-05T19:05:00Z",
+    "maxMessageAgeSeconds": 3600
+  },
+  "envelope": {
+    "oacpVersion": "0.1",
+    "messageId": "msg_stale_001",
+    "messageKind": "EVENT",
+    "messageType": "PROPOSAL_EMITTED",
+    "createdAt": "2026-05-05T17:00:00Z",
+    "scope": {
+      "scopeType": "TENANT",
+      "tenantId": "tenant_001",
+      "environment": "production"
+    },
+    "from": {
+      "identity": {
+        "assurance": "AUTHENTICATED",
+        "subject": "principal.agent.classifier",
+        "credentialRef": "cred_001",
+        "credentialKind": "RUNTIME_TOKEN",
+        "issuedAt": "2026-05-05T16:00:00Z",
+        "expiresAt": "2026-05-05T22:00:00Z",
+        "issuedBy": "runtime-adapter-001"
+      },
+      "verification": {
+        "verified": true,
+        "verifiedBy": "runtime-adapter-001",
+        "verifiedAt": "2026-05-05T19:05:00Z",
+        "verificationMethod": "TOKEN_INTROSPECTION",
+        "tenantScope": {
+          "authorizedTenants": ["tenant_001"],
+          "source": "credential-claims"
+        }
+      },
+      "participantId": "agent.classifier",
+      "participantType": "AGENT"
+    },
+    "governance": {
+      "profile": "OACP-Governed",
+      "profileVersion": "0.1.0",
+      "bindingId": "bind_001",
+      "policySnapshotId": "policy-snapshot-001"
+    },
+    "run": {
+      "runId": "run_001",
+      "correlationId": "corr_001"
+    },
+    "causation": {
+      "causationType": "LINEAR",
+      "causationId": "msg_001",
+      "causationIds": ["msg_001"]
+    },
+    "integrity": {
+      "canonicalization": "JCS-RFC8785",
+      "hashAlgorithm": "sha256",
+      "envelopeHash": "sha256:placeholder_envelope_hash",
+      "previousMessageHash": "sha256:placeholder_prior_hash"
+    },
+    "authorizationDecision": {
+      "decisionRef": {
+        "decisionId": "authz_001",
+        "decisionType": "AUTHORIZATION",
+        "decidedBy": "policy-engine-001",
+        "decidedAt": "2026-05-05T17:00:00Z",
+        "tenantId": "tenant_001"
+      },
+      "decidedBy": "policy-engine-001",
+      "decidedAt": "2026-05-05T17:00:00Z",
+      "scope": {
+        "messageType": "PROPOSAL_EMITTED",
+        "bindingId": "bind_001",
+        "runId": "run_001",
+        "tenantId": "tenant_001"
+      },
+      "result": "ALLOW",
+      "policySnapshotId": "policy-snapshot-001"
+    },
+    "payloadType": "proposal-emitted-v1",
+    "payload": {
+      "proposalId": "prop_001",
+      "proposalRef": {
+        "artifactId": "prop_001",
+        "artifactType": "PROPOSAL",
+        "uri": "ojas://tenant_001/proposals/prop_001",
+        "createdAt": "2026-05-05T17:00:00Z",
+        "expiresAt": "2026-05-05T19:00:00Z",
+        "tenantId": "tenant_001"
+      }
+    }
+  },
+  "expected": "reject",
+  "expectedErrorCode": "MESSAGE_AGE_EXCEEDED",
+  "expectedGateStep": 13,
+  "notes": "createdAt is 2026-05-05T17:00:00Z; receiver's current time is 2026-05-05T19:05:00Z (125 minutes elapsed). With OACP-Governed default maxMessageAgeSeconds=3600 (60 minutes), this exceeds the limit. Even though the credential is still valid (expiresAt is 22:00:00Z), the message itself is too old. This is a replay-protection mechanism distinct from credential freshness."
+}

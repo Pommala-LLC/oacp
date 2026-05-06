@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/decision-ref.schema.json",
+  "title": "OACP DecisionRef",
+  "description": "Reference to a decision artifact. ExternalDecisionRef and RuntimeDecisionRef share this base shape with different decisionType values. Per \u00a72c.1a, \u00a713.6.",
+  "type": "object",
+  "required": [
+    "decisionId",
+    "decisionType",
+    "decidedBy",
+    "decidedAt",
+    "tenantId"
+  ],
+  "properties": {
+    "decisionId": {
+      "type": "string"
+    },
+    "decisionType": {
+      "type": "string",
+      "enum": [
+        "AUTHORIZATION",
+        "BROKER",
+        "EXTERNAL_APPROVAL",
+        "EXTERNAL_REJECTION",
+        "RUNTIME_AUTO_APPROVAL",
+        "AUTO_APPROVAL",
+        "RUNTIME_REJECTION",
+        "RISK_ASSESSMENT",
+        "REPLAY_AUTHORIZATION",
+        "SUPERSESSION",
+        "EXPIRY"
+      ]
+    },
+    "decidedBy": {
+      "type": "string"
+    },
+    "decidedByType": {
+      "type": "string",
+      "enum": [
+        "RUNTIME",
+        "SUPERVISOR",
+        "EXTERNAL_REVIEWER",
+        "EXTERNAL_SYSTEM",
+        "TOOL_BROKER"
+      ]
+    },
+    "decidedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "decisionStatus": {
+      "type": "string",
+      "enum": [
+        "ISSUED",
+        "ACCEPTED",
+        "REVOKED",
+        "SUPERSEDED",
+        "INVALIDATED"
+      ]
+    },
+    "appliesTo": {
+      "type": "object",
+      "properties": {
+        "objectType": {
+          "type": "string",
+          "enum": [
+            "PROPOSAL",
+            "PROPOSAL_DRAFT",
+            "TOOL_CALL",
+            "BROKER_DECISION",
+            "BINDING",
+            "MESSAGE"
+          ]
+        },
+        "proposalRef": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "artifact-ref.schema.json"
+            }
+          ]
+        },
+        "brokerDecisionId": {
+          "type": "string"
+        },
+        "toolCallId": {
+          "type": "string"
+        },
+        "messageId": {
+          "type": "string"
+        },
+        "bindingId": {
+          "type": "string"
+        },
+        "proposalId": {
+          "type": "string"
+        }
+      }
+    },
+    "policySnapshotId": {
+      "type": "string"
+    }
+  }
+}

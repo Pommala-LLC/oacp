@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-tool-request-v1.schema.json",
+  "title": "OACP Tool Request Payload (v1)",
+  "description": "Payload schema for messages with payloadType = 'tool-request-v1' (carried in TOOL_CALL_REQUESTED messages). Tool requests are mediated by the Tool Broker per spec \u00a710. The broker's response state machine governs ALLOW / DENY / SANITIZE / APPROVAL_NEEDED / QUARANTINE outcomes.",
+  "type": "object",
+  "required": [
+    "toolCallId",
+    "toolId",
+    "tenantId",
+    "requestedBy"
+  ],
+  "properties": {
+    "toolCallId": {
+      "type": "string",
+      "description": "Stable identifier for this tool call within tenant scope.",
+      "minLength": 1
+    },
+    "toolId": {
+      "type": "string",
+      "description": "The tool being invoked. MUST be in the requester's binding allowedTools (per spec \u00a73b.2).",
+      "minLength": 1
+    },
+    "inputRef": {
+      "$ref": "../core/artifact-ref.schema.json",
+      "description": "Reference to the tool input artifact. artifactType MUST be TOOL_INPUT."
+    },
+    "inputInline": {
+      "description": "Inline input. Use only when input is small (well below maxEnvelopeBytes per \u00a72c.8) and not security-sensitive. Prefer inputRef for governed audit.",
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "array"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "bindingId": {
+      "type": "string",
+      "description": "Active capability binding under which this tool call is authorized. Per spec \u00a73b.7 rule 1."
+    },
+    "requestedBy": {
+      "type": "object",
+      "required": [
+        "participantId",
+        "participantType"
+      ],
+      "properties": {
+        "participantId": {
+          "type": "string"
+        },
+        "participantType": {
+          "type": "string",
+          "enum": [
+            "AGENT",
+            "SUPERVISOR",
+            "RUNTIME"
+          ]
+        }
+      }
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "expectedResultPayloadType": {
+      "type": "string",
+      "description": "Optional. The payload type the requester expects in the eventual TOOL_RESULT (e.g., 'tool-result-v1' or a tool-specific result schema)."
+    },
+    "timeoutMs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional. Soft timeout hint for the broker/tool dispatcher. Authoritative TTL is in the envelope ttl block."
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "inputRef"
+      ]
+    },
+    {
+      "required": [
+        "inputInline"
+      ]
+    }
+  ]
+}

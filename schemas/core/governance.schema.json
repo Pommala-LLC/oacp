@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/governance.schema.json",
+  "title": "OACP Governance Block",
+  "description": "Profile claims and governance metadata. Per \u00a72a.",
+  "type": "object",
+  "required": [
+    "profile",
+    "profileVersion"
+  ],
+  "properties": {
+    "profile": {
+      "type": "string",
+      "enum": [
+        "OACP-Core",
+        "OACP-Operational",
+        "OACP-Governed",
+        "OACP-Regulated"
+      ],
+      "description": "Base profile. Exactly one per message."
+    },
+    "profileVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "capabilityProfiles": {
+      "type": "array",
+      "description": "Declared capability profiles. Additive.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "OACP-Capability",
+          "OACP-Binding",
+          "OACP-Reliable",
+          "OACP-Tool",
+          "OACP-Review",
+          "OACP-Proposal",
+          "OACP-Interop"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "effectiveCapabilityProfiles": {
+      "type": "array",
+      "description": "Union of declared + implied capability profiles. Implementations MAY compute; receivers SHOULD verify against derivation.",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "riskClass": {
+      "type": "string",
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "description": "Receiver-derived risk classification."
+    },
+    "bindingId": {
+      "type": "string",
+      "description": "Reference to active capability binding."
+    },
+    "policySnapshotId": {
+      "type": "string",
+      "description": "Active policy snapshot ID. Required at OACP-Governed+."
+    }
+  }
+}

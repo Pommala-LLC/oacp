@@ -1,0 +1,79 @@
+{
+  "oacpVersion": "0.1",
+  "messageId": "msg_error_001",
+  "messageKind": "ERROR",
+  "messageType": "ERROR_RESULT",
+  "createdAt": "2026-05-05T17:00:01Z",
+  "scope": {
+    "scopeType": "TENANT",
+    "tenantId": "tenant_001",
+    "environment": "production"
+  },
+  "from": {
+    "identity": {
+      "assurance": "AUTHENTICATED",
+      "subject": "principal.runtime.ojas",
+      "credentialRef": "cred_runtime",
+      "credentialKind": "RUNTIME_TOKEN",
+      "issuedAt": "2026-05-05T16:00:00Z",
+      "expiresAt": "2026-05-05T22:00:00Z",
+      "issuedBy": "runtime-adapter-001"
+    },
+    "verification": {
+      "verified": true,
+      "verifiedBy": "runtime-adapter-001",
+      "verifiedAt": "2026-05-05T17:00:01Z",
+      "verificationMethod": "RUNTIME_INTERNAL",
+      "tenantScope": {
+        "authorizedTenants": ["tenant_001"],
+        "source": "credential-claims"
+      }
+    },
+    "participantId": "runtime.ojas",
+    "participantType": "RUNTIME"
+  },
+  "governance": {
+    "profile": "OACP-Governed",
+    "profileVersion": "0.1.0",
+    "policySnapshotId": "policy-snapshot-001"
+  },
+  "run": {
+    "runId": "run_003",
+    "correlationId": "corr_003"
+  },
+  "causation": {
+    "causationType": "LINEAR",
+    "causationId": "msg_offending_002",
+    "causationIds": ["msg_offending_002"]
+  },
+  "responseTo": {
+    "requestMessageId": "msg_offending_002",
+    "requestMessageType": "PROPOSAL_EMITTED",
+    "responseStatus": "ERROR"
+  },
+  "payloadType": "error-v1",
+  "payload": {
+    "errorCode": "MESSAGE_TENANT_VIOLATION",
+    "errorMessage": "Envelope scope.tenantId is outside the receiver's authorized scope.",
+    "gateStep": 1.5,
+    "violatingField": "/scope/tenantId",
+    "messageRef": {
+      "messageId": "msg_offending_002",
+      "messageType": "PROPOSAL_EMITTED",
+      "runId": "run_003",
+      "tenantId": "tenant_002"
+    },
+    "tenantId": "tenant_001",
+    "occurredAt": "2026-05-05T17:00:01Z",
+    "auditRef": {
+      "auditId": "audit_tenant_violation_001",
+      "auditChainRef": "chain_run_003",
+      "tenantId": "tenant_001"
+    },
+    "details": {
+      "expectedTenants": ["tenant_001"],
+      "actualTenant": "tenant_002"
+    },
+    "retryable": false
+  }
+}

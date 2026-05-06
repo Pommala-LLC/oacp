@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/record-ref.schema.json",
+  "title": "OACP RecordRef",
+  "description": "Reference to a registered control-plane record. Per \u00a72c.1a.",
+  "type": "object",
+  "required": [
+    "recordId",
+    "recordType",
+    "scopeType"
+  ],
+  "properties": {
+    "recordId": {
+      "type": "string"
+    },
+    "recordType": {
+      "type": "string",
+      "anyOf": [
+        {
+          "enum": [
+            "CAPABILITY_MANIFEST",
+            "BINDING_RECORD",
+            "POLICY_SNAPSHOT",
+            "PROFILE_REGISTRY",
+            "CROSS_TENANT_POLICY",
+            "REVIEW_FEEDBACK",
+            "AUTO_APPROVAL_PRECONDITIONS",
+            "MESSAGE_SIGNATURE"
+          ]
+        },
+        {
+          "pattern": "^x-(org|vendor|regulated|experimental)-"
+        }
+      ]
+    },
+    "registry": {
+      "type": "string"
+    },
+    "scopeType": {
+      "type": "string",
+      "enum": [
+        "TENANT",
+        "WORKSPACE",
+        "GLOBAL"
+      ]
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "scopeType": {
+            "const": "TENANT"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "tenantId"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "scopeType": {
+            "const": "WORKSPACE"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "tenantId",
+          "workspaceId"
+        ]
+      }
+    }
+  ]
+}

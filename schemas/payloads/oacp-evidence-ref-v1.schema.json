@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-evidence-ref-v1.schema.json",
+  "title": "OACP Evidence Reference (v1)",
+  "description": "A constrained ArtifactRef profile for evidence-report artifacts. Use this where a field is typed specifically as an evidence reference (e.g., on proposal artifacts, gate results). Structurally an ArtifactRef per artifact-ref.schema.json with artifactType pinned to EVIDENCE_REPORT.",
+  "$ref": "../core/artifact-ref.schema.json",
+  "type": "object",
+  "properties": {
+    "artifactType": {
+      "const": "EVIDENCE_REPORT"
+    }
+  },
+  "required": [
+    "artifactType"
+  ]
+}

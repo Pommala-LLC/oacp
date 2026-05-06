@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/payloads/oacp-envelope-v1.schema.json",
+  "title": "OACP Envelope (payload-version v1)",
+  "description": "The v1 OACP envelope. Structurally equivalent to envelope.schema.json with the additional constraint that oacpVersion is '0.1' and that this is the v1 payload generation. Use this when binding generators or transport layers need to declare a specific payload-version of the envelope; use envelope.schema.json for general structural validation across all v0.x envelopes.",
+  "$ref": "../core/envelope.schema.json",
+  "type": "object",
+  "properties": {
+    "oacpVersion": {
+      "const": "0.1"
+    }
+  },
+  "required": [
+    "oacpVersion"
+  ]
+}

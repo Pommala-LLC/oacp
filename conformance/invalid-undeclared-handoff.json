@@ -1,0 +1,75 @@
+{
+  "oacpVersion": "0.1",
+  "messageId": "msg_invalid_handoff",
+  "messageKind": "EVENT",
+  "messageType": "HANDOFF_REQUESTED",
+  "createdAt": "2026-05-05T17:15:00Z",
+  "scope": {
+    "scopeType": "TENANT",
+    "tenantId": "tenant_001",
+    "environment": "production"
+  },
+  "from": {
+    "identity": {
+      "assurance": "AUTHENTICATED",
+      "subject": "principal.runtime.ojas",
+      "credentialRef": "cred_runtime",
+      "credentialKind": "RUNTIME_TOKEN",
+      "issuedAt": "2026-05-05T16:00:00Z",
+      "expiresAt": "2026-05-05T22:00:00Z",
+      "issuedBy": "runtime-adapter-001"
+    },
+    "verification": {
+      "verified": true,
+      "verifiedBy": "runtime-adapter-001",
+      "verifiedAt": "2026-05-05T17:15:00Z",
+      "verificationMethod": "RUNTIME_INTERNAL",
+      "tenantScope": {
+        "authorizedTenants": ["tenant_001"],
+        "source": "credential-claims"
+      }
+    },
+    "participantId": "runtime.ojas",
+    "participantType": "RUNTIME"
+  },
+  "governance": {
+    "profile": "OACP-Governed",
+    "profileVersion": "0.1.0",
+    "policySnapshotId": "policy-snapshot-001"
+  },
+  "ttl": {
+    "expiresAt": "2026-05-05T17:30:00Z"
+  },
+  "run": {
+    "runId": "run_001",
+    "correlationId": "corr_001"
+  },
+  "causation": {
+    "causationType": "LINEAR",
+    "causationId": "msg_classifier_done",
+    "causationIds": ["msg_classifier_done"]
+  },
+  "payloadType": "handoff-v1",
+  "payload": {
+    "handoffId": "classifier-to-rogue-target",
+    "handoffInstanceId": "handoff_undeclared_001",
+    "handoffStatus": "REQUESTED",
+    "from": {
+      "participantId": "agent.classifier",
+      "role": "CLASSIFIER"
+    },
+    "to": {
+      "participantId": "agent.rogue-target",
+      "role": "UNDECLARED_ROLE"
+    },
+    "bindingRef": {
+      "recordId": "bind_001",
+      "recordType": "BINDING_RECORD",
+      "registry": "binding-registry",
+      "scopeType": "TENANT",
+      "tenantId": "tenant_001"
+    },
+    "tenantId": "tenant_001",
+    "runId": "run_001"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/binding.schema.json",
+  "title": "OACP Binding",
+  "description": "Capability binding artifact. Issued by RUNTIME or authorized SUPERVISOR. Per \u00a73b.4-\u00a73b.7.",
+  "type": "object",
+  "required": [
+    "bindingId",
+    "bindingVersion",
+    "manifestId",
+    "capabilityId",
+    "issuedBy",
+    "issuedAt",
+    "bindingScope",
+    "bindingValidityFrom",
+    "bindingValidityUntil",
+    "bindingState"
+  ],
+  "properties": {
+    "bindingId": {
+      "type": "string"
+    },
+    "bindingVersion": {
+      "type": "string"
+    },
+    "manifestId": {
+      "type": "string"
+    },
+    "capabilityId": {
+      "type": "string"
+    },
+    "issuedBy": {
+      "type": "object",
+      "required": [
+        "participantId",
+        "participantType"
+      ],
+      "properties": {
+        "participantId": {
+          "type": "string"
+        },
+        "participantType": {
+          "type": "string",
+          "enum": [
+            "RUNTIME",
+            "SUPERVISOR"
+          ]
+        }
+      }
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "bindingScope": {
+      "type": "object",
+      "required": [
+        "runId",
+        "tenantId",
+        "messageTypes"
+      ],
+      "properties": {
+        "runId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "workspaceId": {
+          "type": "string"
+        },
+        "messageTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "bindingValidityFrom": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "bindingValidityUntil": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "bindingState": {
+      "type": "string",
+      "enum": [
+        "REQUESTED",
+        "MATCHED",
+        "BOUND",
+        "ACTIVE",
+        "SUSPENDED",
+        "REVOKED",
+        "EXPIRED",
+        "FAILED"
+      ]
+    }
+  }
+}

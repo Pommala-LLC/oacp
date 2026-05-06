@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/causation.schema.json",
+  "title": "OACP Causation",
+  "description": "Causation block. INITIATOR messages omit causationId/causationIds. Per \u00a73d.5.",
+  "type": "object",
+  "required": [
+    "causationType"
+  ],
+  "properties": {
+    "causationType": {
+      "type": "string",
+      "enum": [
+        "INITIATOR",
+        "LINEAR",
+        "FAN_OUT",
+        "FAN_IN"
+      ]
+    },
+    "causationId": {
+      "type": "string",
+      "description": "Primary causal predecessor. Absent only for INITIATOR."
+    },
+    "causationIds": {
+      "type": "array",
+      "description": "Full set of predecessors. For LINEAR and FAN_OUT, single entry equal to causationId. For FAN_IN, all parents.",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "causationType": {
+            "const": "INITIATOR"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "causationId"
+              ]
+            },
+            {
+              "required": [
+                "causationIds"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "causationType": {
+            "enum": [
+              "LINEAR",
+              "FAN_OUT",
+              "FAN_IN"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "causationId",
+          "causationIds"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oacp.dev/schemas/v0.1/core/envelope.schema.json",
+  "title": "OACP Envelope",
+  "description": "The top-level OACP message envelope. Every OACP message conforms to this schema. Profile-specific stricter validation is layered on top per OACP_SPEC.md \u00a722.",
+  "type": "object",
+  "required": [
+    "oacpVersion",
+    "messageId",
+    "messageKind",
+    "messageType",
+    "createdAt",
+    "scope",
+    "from",
+    "governance",
+    "payloadType",
+    "payload"
+  ],
+  "properties": {
+    "oacpVersion": {
+      "type": "string",
+      "description": "Protocol version. Format: <major>.<minor>. v0.1 is the working draft.",
+      "pattern": "^\\d+\\.\\d+$",
+      "examples": [
+        "0.1"
+      ]
+    },
+    "messageId": {
+      "type": "string",
+      "description": "Stable identifier for this single emission. One emission, N possible deliveries.",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "messageKind": {
+      "type": "string",
+      "description": "Top-level message category. Reserved values per spec. Values TOOL_REQUEST and ERROR are previewed for v0.2 direction; v0.1 spec body uses TOOL_CALL and EVENT for these flows. See CHANGES.md.",
+      "enum": [
+        "EVENT",
+        "RESPONSE",
+        "PROPOSAL",
+        "TOOL_CALL",
+        "TOOL_REQUEST",
+        "TOOL_RESULT",
+        "GATE_RESULT",
+        "REVIEW",
+        "BINDING",
+        "CAPABILITY_NEGOTIATION",
+        "ESCALATION",
+        "ERROR",
+        "RUN",
+        "SYSTEM"
+      ]
+    },
+    "messageType": {
+      "type": "string",
+      "description": "Specific message type within the kind. Reserved values per spec; custom types use namespace prefixes per \u00a72b.7.",
+      "minLength": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "ISO-8601 message emission timestamp.",
+      "format": "date-time"
+    },
+    "scope": {
+      "$ref": "scope.schema.json"
+    },
+    "from": {
+      "type": "object",
+      "required": [
+        "identity",
+        "verification",
+        "participantId",
+        "participantType"
+      ],
+      "properties": {
+        "identity": {
+          "$ref": "identity.schema.json"
+        },
+        "verification": {
+          "$ref": "verification.schema.json"
+        },
+        "verificationTrail": {
+          "type": "array",
+          "description": "Appended per-hop verification records. Earlier entries are not modified.",
+          "items": {
+            "$ref": "verification.schema.json"
+          }
+        },
+        "participantId": {
+          "type": "string",
+          "description": "Stable participant identifier within tenant scope."
+        },
+        "participantType": {
+          "type": "string",
+          "description": "Per-message authority class. Per \u00a73a.8 authority matrix.",
+          "enum": [
+            "AGENT",
+            "SUPERVISOR",
+            "RUNTIME",
+            "TOOL_BROKER",
+            "GATE_RUNNER",
+            "EVIDENCE_COLLECTOR",
+            "EXTERNAL_SYSTEM",
+            "EXTERNAL_REVIEWER"
+          ]
+        }
+      }
+    },
+    "governance": {
+      "$ref": "governance.schema.json"
+    },
+    "ttl": {
+      "type": "object",
+      "description": "Message time-to-live. Required for REVIEW_REQUESTED, ESCALATION_REQUESTED, AWAITING_APPROVAL.",
+      "properties": {
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "description": "Run identity. Required at OACP-Operational+.",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "description": "One governed execution instance."
+        },
+        "correlationId": {
+          "type": "string",
+          "description": "End-to-end trace boundary; typically aligned with OpenTelemetry trace ID."
+        }
+      }
+    },
+    "conversation": {
+      "type": "object",
+      "description": "Conversation that may span multiple runs.",
+      "properties": {
+        "conversationId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "parentTurnId": {
+          "type": "string"
+        },
+        "interactionMode": {
+          "type": "string",
+          "enum": [
+            "AUTONOMOUS",
+            "HUMAN_REVIEW",
+            "HUMAN_INITIATED",
+            "EXTERNAL_SYSTEM"
+          ]
+        }
+      },
+      "required": [
+        "conversationId"
+      ]
+    },
+    "causation": {
+      "$ref": "causation.schema.json"
+    },
+    "responseTo": {
+      "type": "object",
+      "description": "Required for RESPONSE, TOOL_RESULT, GATE_RESULT, broker-decision messages.",
+      "required": [
+        "requestMessageId",
+        "requestMessageType",
+        "responseStatus"
+      ],
+      "properties": {
+        "requestMessageId": {
+          "type": "string"
+        },
+        "requestMessageType": {
+          "type": "string"
+        },
+        "responseStatus": {
+          "type": "string",
+          "enum": [
+            "SUCCESS",
+            "ERROR",
+            "PARTIAL",
+            "TIMEOUT"
+          ]
+        }
+      }
+    },
+    "delivery": {
+      "type": "object",
+      "description": "Transport delivery semantics.",
+      "properties": {
+        "deliveryMode": {
+          "type": "string",
+          "enum": [
+            "AT_MOST_ONCE",
+            "AT_LEAST_ONCE",
+            "EXACTLY_ONCE_EFFECTIVE",
+            "BEST_EFFORT"
+          ]
+        },
+        "retryAttempt": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxRetryAttempts": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "description": "Logical operation identifier across retries. Required at OACP-Governed+ for capability-scoped operations."
+    },
+    "idempotencyScope": {
+      "type": "string",
+      "enum": [
+        "RUN",
+        "TENANT",
+        "WORKSPACE",
+        "GLOBAL"
+      ]
+    },
+    "replay": {
+      "type": "object",
+      "description": "Replay metadata. Authority restricted to RUNTIME or authorized SUPERVISOR per \u00a73c.7.",
+      "required": [
+        "replayId",
+        "originalMessageId",
+        "originalRunId",
+        "replayMode",
+        "reason",
+        "replayedBy",
+        "replayedAt"
+      ],
+      "properties": {
+        "replayId": {
+          "type": "string"
+        },
+        "originalMessageId": {
+          "type": "string"
+        },
+        "originalRunId": {
+          "type": "string"
+        },
+        "replayMode": {
+          "type": "string",
+          "enum": [
+            "ORIGINAL_POLICY",
+            "CURRENT_POLICY",
+            "DIAGNOSTIC_ONLY",
+            "FORKED_RUN"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "replayedBy": {
+          "type": "string"
+        },
+        "replayedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "replayAuthorizationRef": {
+          "$ref": "decision-ref.schema.json"
+        }
+      }
+    },
+    "replayable": {
+      "type": "boolean",
+      "description": "Whether this message is eligible to be replayed."
+    },
+    "integrity": {
+      "$ref": "integrity.schema.json"
+    },
+    "authorizationDecision": {
+      "type": "object",
+      "description": "Required at OACP-Governed+ for capability-scoped messages. Receiver-evaluated; sender records the decision.",
+      "required": [
+        "decisionRef",
+        "decidedBy",
+        "decidedAt",
+        "scope",
+        "result"
+      ],
+      "properties": {
+        "decisionRef": {
+          "$ref": "decision-ref.schema.json"
+        },
+        "decidedBy": {
+          "type": "string"
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scope": {
+          "type": "object",
+          "properties": {
+            "messageType": {
+              "type": "string"
+            },
+            "bindingId": {
+              "type": "string"
+            },
+            "runId": {
+              "type": "string"
+            },
+            "tenantId": {
+              "type": "string"
+            }
+          }
+        },
+        "result": {
+          "type": "string",
+          "enum": [
+            "ALLOW",
+            "DENY",
+            "SANITIZE",
+            "APPROVAL_NEEDED",
+            "QUARANTINE",
+            "CANCEL"
+          ]
+        },
+        "policySnapshotId": {
+          "type": "string"
+        }
+      }
+    },
+    "refs": {
+      "type": "object",
+      "description": "Optional grouping for typed references used by the message.",
+      "additionalProperties": true
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Namespaced extensions per \u00a72b. Keys must use reserved prefixes (x-org-*, x-vendor-*, x-regulated-*, x-experimental-*) at OACP-Governed+.",
+      "patternProperties": {
+        "^x-(org|vendor|regulated|experimental)-": {
+          "type": "object"
+        },
+        "^x-[a-zA-Z0-9_-]+$": {
+          "description": "Bare x-* namespace - permitted at OACP-Core/Operational only.",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "requiredExtensions": {
+      "type": "array",
+      "description": "Single source of truth for required-extension status. Per \u00a72b.4.",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "payloadType": {
+      "type": "string",
+      "description": "Identifies the payload schema. Format: <schema-name>-v<version>.",
+      "minLength": 1
+    },
+    "payload": {
+      "description": "Message-kind-specific content. Validated against the schema identified by payloadType.",
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "array"
+        },
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}
